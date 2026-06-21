@@ -23,3 +23,26 @@ class Summary:
     highlights: list[str] = field(default_factory=list)
     applications: list[str] = field(default_factory=list)
     error: str | None = None
+
+
+@dataclass
+class Topic:
+    """单个领域的配置。"""
+
+    name: str
+    keywords: list[str]
+    max_results: int = 10
+
+    @property
+    def arxiv_query(self) -> str:
+        """将关键词列表 OR 拼接为 arXiv 查询串。"""
+        return " OR ".join(f'all:"{kw}"' for kw in self.keywords)
+
+
+@dataclass
+class TopicResult:
+    """单个领域的抓取与总结结果。"""
+
+    topic: Topic
+    papers: list[Paper]
+    summaries: list[Summary]
