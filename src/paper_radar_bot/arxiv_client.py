@@ -73,3 +73,27 @@ def _parse_atom(xml_text: str) -> list[Paper]:
         ))
 
     return papers
+
+
+def fetch_papers_by_ids(arxiv_ids: list[str]) -> list[Paper]:
+    """Fetch specific papers from arXiv by ID list; results ordered to match input."""
+    if not arxiv_ids:
+        return []
+
+    params = {
+        "id_list": ",".join(arxiv_ids),
+        "max_results": len(arxiv_ids),
+    }
+    try:
+        response = requests.get(_ARXIV_API, params=params, headers=_HEADERS, timeout=60)
+        response.raise_for_status()
+    except requests.HTTPError as e:
+        print(f"ERROR: arXiv request failed with status {e.response.status_code}: {e}", file=sys.stderr)
+        sys.exit(1)
+    except requests.RequestException as e:
+        print(f"ERROR: arXiv request failed: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    papers = _parse_atom(response.text)
+    papers_by_id = {p.arxiv_id: p for p in papers}
+    return [papers_by_id[aid] for aid in arxiv_ids if aid in papers_by_id]
