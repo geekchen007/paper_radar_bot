@@ -31,6 +31,7 @@ class Config:
     timezone: str
     locale: str
     output_format: str  # "html" or "markdown"
+    hf_summarize_mode: str  # "translate" or "full"
 
 
 def load_config() -> Config:
@@ -52,6 +53,11 @@ def load_config() -> Config:
         print(f"ERROR: OUTPUT_FORMAT must be 'html' or 'markdown', got: {raw_format!r}", file=sys.stderr)
         sys.exit(1)
 
+    raw_hf_mode = os.getenv("HF_SUMMARIZE_MODE", "translate").lower()
+    if raw_hf_mode not in ("translate", "full"):
+        print(f"ERROR: HF_SUMMARIZE_MODE must be 'translate' or 'full', got: {raw_hf_mode!r}", file=sys.stderr)
+        sys.exit(1)
+
     return Config(
         api_key=api_key,
         base_url=os.getenv("OPENAI_BASE_URL", _DEFAULTS["OPENAI_BASE_URL"]),
@@ -61,4 +67,5 @@ def load_config() -> Config:
         timezone=os.getenv("REPORT_TIMEZONE", _DEFAULTS["REPORT_TIMEZONE"]),
         locale=os.getenv("REPORT_LOCALE", _DEFAULTS["REPORT_LOCALE"]),
         output_format=raw_format,
+        hf_summarize_mode=raw_hf_mode,
     )
