@@ -44,8 +44,9 @@ def _e(text: str) -> str:
 
 
 def _section_id(name: str) -> str:
-    """Convert a topic name to a safe HTML id."""
-    return "".join(c if c.isalnum() else "-" for c in name.lower()).strip("-")
+    """Convert a topic name to a safe HTML id; falls back to 'topic' if name is all punctuation."""
+    sid = "".join(c if c.isalnum() else "-" for c in name.lower()).strip("-")
+    return sid if sid else "topic"
 
 
 def _render_paper(paper: Paper, summary: Summary) -> str:

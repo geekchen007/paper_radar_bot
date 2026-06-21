@@ -32,10 +32,13 @@ class Topic:
     name: str
     keywords: list[str]
     max_results: int = 10
+    _override_query: str | None = field(default=None, repr=False, compare=False)
 
     @property
     def arxiv_query(self) -> str:
-        """将关键词列表 OR 拼接为 arXiv 查询串。"""
+        """将关键词列表 OR 拼接为 arXiv 查询串；若设置了 _override_query 则直接返回。"""
+        if self._override_query is not None:
+            return self._override_query
         return " OR ".join(f'all:"{kw}"' for kw in self.keywords)
 
 

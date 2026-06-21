@@ -42,7 +42,9 @@ def test_load_topics_from_yaml():
 def test_load_topics_file_not_found_uses_fallback_query():
     topics = load_topics("nonexistent_xyz.yaml", fallback_query="cat:cs.AI")
     assert len(topics) == 1
-    assert topics[0].keywords == ["cat:cs.AI"]
+    # keywords is empty; the raw query is carried in _override_query and returned verbatim
+    assert topics[0].keywords == []
+    assert topics[0].arxiv_query == "cat:cs.AI"
 
 
 def test_load_topics_file_not_found_uses_defaults():

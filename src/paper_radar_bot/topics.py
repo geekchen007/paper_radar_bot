@@ -36,7 +36,7 @@ def load_topics(topics_file: str = "topics.yaml", fallback_query: str | None = N
     path = Path(topics_file)
     if not path.exists():
         if fallback_query is not None:
-            return [Topic(name="默认领域", keywords=[fallback_query], max_results=10)]
+            return [Topic(name="默认领域", keywords=[], max_results=10, _override_query=fallback_query)]
         return list(_DEFAULT_TOPICS)
 
     try:
@@ -47,7 +47,7 @@ def load_topics(topics_file: str = "topics.yaml", fallback_query: str | None = N
         sys.exit(1)
 
     topics: list[Topic] = []
-    for item in data.get("topics", []):
+    for item in (data or {}).get("topics", []):
         keywords: list[str] = item.get("keywords", [])
         if not keywords:
             print(f"WARNING: Topic {item.get('name', '?')!r} has no keywords, skipping.", file=sys.stderr)
