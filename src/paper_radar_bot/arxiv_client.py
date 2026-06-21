@@ -12,6 +12,7 @@ from paper_radar_bot.models import Paper
 _ATOM_NS = "http://www.w3.org/2005/Atom"
 _ARXIV_API = "https://export.arxiv.org/api/query"
 _ID_RE = re.compile(r"abs/([^v]+)")
+_HEADERS = {"User-Agent": "paper_radar_bot/0.1 (https://github.com/geekchen007/paper_radar_bot)"}
 
 
 def fetch_papers(config: Config) -> list[Paper]:
@@ -23,7 +24,7 @@ def fetch_papers(config: Config) -> list[Paper]:
         "sortOrder": "descending",
     }
     try:
-        response = requests.get(_ARXIV_API, params=params, timeout=30)
+        response = requests.get(_ARXIV_API, params=params, headers=_HEADERS, timeout=60)
         response.raise_for_status()
     except requests.HTTPError as e:
         print(f"ERROR: arXiv request failed with status {e.response.status_code}: {e}", file=sys.stderr)
