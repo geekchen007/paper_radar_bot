@@ -1,79 +1,79 @@
-# Paper Radar Bot Design
+# Paper Radar Bot 设计文档
 
-## Goal
+## 目标
 
-Build a small standalone Python project that fetches recent arXiv papers for configured topics, generates Chinese summaries with an OpenAI-compatible model, writes a dated Markdown report, and can be run either locally through a `.bat` file or automatically through GitHub Actions.
+构建一个独立的小型 Python 项目：根据预设主题抓取最新 arXiv 论文，调用兼容 OpenAI 的模型生成中文总结，输出带日期的 Markdown 报告，并同时支持通过本地 `.bat` 文件运行和通过 GitHub Actions 自动运行。
 
-## Scope
+## 范围
 
-This first version is intentionally narrow:
+第一版有意保持精简，仅包含以下能力：
 
-- Fetch papers from the arXiv API only
-- Filter papers by configured search keywords
-- Generate Chinese summaries for each paper
-- Render one Markdown report per run into `reports/`
-- Provide a Windows `.bat` entrypoint for one-click local execution
-- Provide a GitHub Actions workflow for scheduled runs and auto-commit
+- 只从 arXiv API 抓取论文
+- 按配置的检索关键词筛选论文
+- 为每篇论文生成中文总结
+- 每次运行输出一份 Markdown 报告到 `reports/`
+- 提供 Windows `.bat` 一键运行入口
+- 提供 GitHub Actions 定时运行与自动提交流程
 
-Out of scope for this version:
+第一版暂不包含以下内容：
 
-- Multi-source aggregation beyond arXiv
-- Deduplication across remote databases
-- Web UI or dashboard
-- Database storage
-- Semantic ranking or citation graph analysis
+- arXiv 以外的多源论文聚合
+- 不同远程数据库之间的去重
+- Web UI 或可视化面板
+- 数据库存储
+- 基于语义排序或引文关系的分析能力
 
-## User Experience
+## 用户体验
 
-The project supports two primary ways to run:
+项目支持两种主要运行方式：
 
-1. Local Windows execution through `run_paper_radar.bat`
-2. Scheduled GitHub execution through Actions once the repository is pushed
+1. 在 Windows 本地通过 `run_paper_radar.bat` 运行
+2. 将仓库推送到 GitHub 后，通过 Actions 定时运行
 
-Each run produces a Markdown report named by date, for example `reports/2026-06-21.md`. The report contains:
+每次运行都会生成一份按日期命名的 Markdown 报告，例如 `reports/2026-06-21.md`。报告内容包括：
 
-- Run metadata
-- Search topics used
-- Paper title
-- Authors
-- Published date
-- arXiv link
-- Chinese summary
-- Key highlights
-- Potential applications
+- 本次运行元信息
+- 使用的检索主题
+- 论文标题
+- 作者
+- 发布时间
+- arXiv 链接
+- 中文摘要
+- 关键亮点
+- 潜在应用方向
 
-## Architecture
+## 架构
 
-The codebase will be split into small modules with clear responsibilities:
+代码库会拆分为职责清晰的小模块：
 
-- `config.py`: loads environment variables and validates runtime configuration
-- `models.py`: dataclasses for normalized paper records and summary output
-- `arxiv_client.py`: requests and parses arXiv Atom responses
-- `summarizer.py`: calls the OpenAI-compatible chat completion API
-- `renderer.py`: converts normalized paper data into Markdown
-- `writer.py`: creates output directories and saves reports
-- `main.py`: orchestration entrypoint
+- `config.py`：加载环境变量并校验运行配置
+- `models.py`：定义标准化论文记录和总结结果的数据结构
+- `arxiv_client.py`：请求并解析 arXiv Atom 响应
+- `summarizer.py`：调用兼容 OpenAI 的 Chat Completions API
+- `renderer.py`：将标准化论文数据渲染为 Markdown
+- `writer.py`：创建输出目录并保存报告
+- `main.py`：总调度入口
 
-This keeps fetch, summarize, render, and write concerns separated so future changes can replace one piece without rewriting the rest.
+这样可以把抓取、总结、渲染、写文件等关注点分离，后续如果需要替换某一部分，不必重写整条链路。
 
-## Data Flow
+## 数据流
 
-1. Load config from environment variables and optional `.env`
-2. Query arXiv using configured keywords and max result count
-3. Normalize API responses into internal paper records
-4. For each paper, generate a structured Chinese summary
-5. Render all paper records into one dated Markdown report
-6. Save the report under `reports/`
+1. 从环境变量和可选的 `.env` 中加载配置
+2. 使用配置的关键词和结果数量上限查询 arXiv
+3. 将 API 响应标准化为内部论文记录
+4. 为每篇论文生成结构化中文总结
+5. 将所有论文记录渲染为一份按日期命名的 Markdown 报告
+6. 将报告保存到 `reports/`
 
-## Configuration
+## 配置
 
-The first version will use environment variables with a documented `.env.example`.
+第一版使用环境变量，并提供文档化的 `.env.example`。
 
-Required:
+必填项：
 
 - `OPENAI_API_KEY`
 
-Optional with defaults:
+可选项（带默认值）：
 
 - `OPENAI_BASE_URL`
 - `OPENAI_MODEL`
@@ -82,30 +82,30 @@ Optional with defaults:
 - `REPORT_TIMEZONE`
 - `REPORT_LOCALE`
 
-The default query will target AI-related frontier topics so the project works out of the box after adding an API key.
+默认查询词会面向 AI 相关前沿主题，这样用户只要填入 API Key 就能直接运行。
 
-## Error Handling
+## 错误处理
 
-The CLI should fail clearly and early when configuration is missing or invalid.
+CLI 在配置缺失或无效时应尽早失败，并给出清晰提示。
 
-- Missing API key: exit with a readable message
-- arXiv request failure: exit with status code and concise error detail
-- summary generation failure for one paper: keep the paper and mark the summary section as failed instead of aborting the entire run
-- file write failure: exit with a readable filesystem error
+- 缺少 API Key：直接退出，并输出可读错误信息
+- arXiv 请求失败：退出，并输出状态码和简洁错误细节
+- 单篇论文总结失败：保留论文信息，在总结部分标记失败，而不是让整次运行中断
+- 文件写入失败：退出，并输出可读的文件系统错误信息
 
-## Testing Strategy
+## 测试策略
 
-This project will start with focused unit tests for stable logic:
+第一版先覆盖稳定逻辑的单元测试：
 
-- arXiv response parsing into normalized records
-- Markdown rendering from normalized records
-- output path generation and file writing
+- arXiv 响应解析为标准化记录
+- 从标准化记录渲染 Markdown
+- 输出路径生成与文件写入
 
-External HTTP calls will not be exercised in unit tests. Those integration paths will remain manual- or workflow-verified in this first version.
+外部 HTTP 调用在单元测试中不直接覆盖。第一版对这些集成路径以手动验证或 GitHub Actions 验证为主。
 
-## Repository Layout
+## 仓库结构
 
-Planned structure:
+规划结构如下：
 
 ```text
 paper_radar_bot/
@@ -120,52 +120,52 @@ paper_radar_bot/
   run_paper_radar.bat
 ```
 
-## Tradeoffs
+## 方案权衡
 
-### Option A: Pure local script only
+### 方案 A：仅本地脚本
 
-Pros:
+优点：
 
-- simplest setup
-- no GitHub workflow maintenance
+- 配置最简单
+- 不需要维护 GitHub 工作流
 
-Cons:
+缺点：
 
-- no automatic updating
-- no built-in publishing path
+- 无法自动更新
+- 没有现成的发布路径
 
-### Option B: Python CLI plus `.bat` plus GitHub Actions
+### 方案 B：Python CLI + `.bat` + GitHub Actions
 
-Pros:
+优点：
 
-- strong local usability on Windows
-- easy scheduled automation
-- same Python entrypoint serves both local and cloud execution
+- 在 Windows 本地使用体验更好
+- 方便做定时自动化
+- 同一套 Python 入口同时服务本地运行和云端执行
 
-Cons:
+缺点：
 
-- slightly more setup surface
+- 配置面稍微更大一些
 
-Recommended: Option B, because it gives local one-click execution without giving up unattended GitHub updates.
+推荐选择方案 B，因为它既保留了本地一键运行能力，也不牺牲 GitHub 上的自动更新能力。
 
-### Option C: Full web app
+### 方案 C：完整 Web 应用
 
-Pros:
+优点：
 
-- richer browsing experience
+- 浏览和交互体验更丰富
 
-Cons:
+缺点：
 
-- much larger scope
-- unnecessary for the first milestone
+- 范围明显更大
+- 对第一阶段目标来说没有必要
 
-## Acceptance Criteria
+## 验收标准
 
-The first version is successful when:
+第一版在满足以下条件时视为成功：
 
-- a user can fill `.env`
-- a user can run `run_paper_radar.bat`
-- the script generates a dated Markdown report under `reports/`
-- the report includes fetched paper metadata and Chinese summaries
-- the repository includes a GitHub Actions workflow for scheduled execution and auto-commit
-- unit tests for parse, render, and write logic pass locally
+- 用户可以填写 `.env`
+- 用户可以运行 `run_paper_radar.bat`
+- 脚本会在 `reports/` 下生成带日期的 Markdown 报告
+- 报告中包含抓取到的论文元信息和中文总结
+- 仓库中包含 GitHub Actions 工作流，用于定时执行和自动提交
+- 解析、渲染、写文件这三类单元测试可在本地通过
