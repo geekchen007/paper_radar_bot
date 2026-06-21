@@ -1,6 +1,6 @@
 """Render Paper records and Summaries into a Markdown report string."""
 
-from paper_radar_bot.models import Paper, Summary
+from paper_radar_bot.models import Paper, Summary, TopicResult
 
 
 def render_paper_section(paper: Paper, summary: Summary) -> str:
@@ -47,25 +47,30 @@ def render_paper_section(paper: Paper, summary: Summary) -> str:
     return "\n".join(lines)
 
 
-def render_report(
-    papers: list[Paper],
-    summaries: list[Summary],
-    query: str,
-    date_str: str,
-) -> str:
-    """Render all papers into a complete Markdown report."""
-    header = "\n".join([
+def render_report(results: list[TopicResult], date_str: str) -> str:
+    """Render all topic results into a complete Markdown report."""
+    total_papers = sum(len(r.papers) for r in results)
+
+    header_lines = [
         f"# Paper Radar 日报 — {date_str}",
         "",
         "## 运行元信息",
         "",
         f"- **运行日期：** {date_str}",
-        f"- **检索主题：** `{query}`",
-        f"- **论文数量：** {len(papers)}",
+        f"- **领域数量：** {len(results)}",
+        f"- **论文总数：** {total_papers}",
         "",
         "---",
         "",
-    ])
+    ]
 
-    sections = [render_paper_section(p, s) for p, s in zip(papers, summaries)]
-    return header + "\n---\n\n".join(sections)
+    topic_sections = []
+    for result in results:
+        paper_sections = [
+            render_paper_section(p, s)
+            for p, s in zip(result.papers, result.summaries)
+        ]
+        topic_header = f"# {result.topic.name}（{len(result.papers)} 篇）\n\n"
+        topic_sections.append(topic_header + "\n---\n\n".join(paper_sections))
+
+    return "\n".join(header_lines) + "\n\n---\n\n".join(topic_sections)

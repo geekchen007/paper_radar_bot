@@ -1,6 +1,6 @@
 """Unit tests for Markdown rendering."""
 
-from paper_radar_bot.models import Paper, Summary
+from paper_radar_bot.models import Paper, Summary, Topic, TopicResult
 from paper_radar_bot.renderer import render_paper_section, render_report
 
 _PAPER = Paper(
@@ -24,6 +24,9 @@ _FAILED_SUMMARY = Summary(
     applications=[],
     error="network timeout",
 )
+
+_TOPIC = Topic(name="Test Topic", keywords=["test"], max_results=5)
+_RESULT = TopicResult(topic=_TOPIC, papers=[_PAPER], summaries=[_SUMMARY])
 
 
 def test_render_paper_section_contains_title():
@@ -64,15 +67,15 @@ def test_render_paper_section_failed_summary_shows_error():
 
 
 def test_render_report_contains_date():
-    report = render_report([_PAPER], [_SUMMARY], query="cat:cs.AI", date_str="2026-06-21")
+    report = render_report([_RESULT], date_str="2026-06-21")
     assert "2026-06-21" in report
 
 
-def test_render_report_contains_query():
-    report = render_report([_PAPER], [_SUMMARY], query="cat:cs.AI", date_str="2026-06-21")
-    assert "cat:cs.AI" in report
+def test_render_report_contains_topic_name():
+    report = render_report([_RESULT], date_str="2026-06-21")
+    assert "Test Topic" in report
 
 
 def test_render_report_contains_paper_count():
-    report = render_report([_PAPER], [_SUMMARY], query="cat:cs.AI", date_str="2026-06-21")
+    report = render_report([_RESULT], date_str="2026-06-21")
     assert "1" in report
