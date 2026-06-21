@@ -6,7 +6,6 @@ import xml.etree.ElementTree as ET
 
 import requests
 
-from paper_radar_bot.config import Config
 from paper_radar_bot.models import Paper
 
 _ATOM_NS = "http://www.w3.org/2005/Atom"
@@ -15,11 +14,11 @@ _ID_RE = re.compile(r"abs/([^v]+)")
 _HEADERS = {"User-Agent": "paper_radar_bot/0.1 (https://github.com/geekchen007/paper_radar_bot)"}
 
 
-def fetch_papers(config: Config) -> list[Paper]:
-    """Query arXiv and return a list of Paper records."""
+def fetch_papers(query: str, max_results: int) -> list[Paper]:
+    """Query arXiv with the given query string and return a list of Paper records."""
     params = {
-        "search_query": config.arxiv_query,
-        "max_results": config.arxiv_max_results,
+        "search_query": query,
+        "max_results": max_results,
         "sortBy": "submittedDate",
         "sortOrder": "descending",
     }
