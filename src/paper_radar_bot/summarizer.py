@@ -48,7 +48,7 @@ def summarize(paper: Paper, config: Config) -> Summary:
             highlights=data.get("highlights", []),
             applications=data.get("applications", []),
         )
-    except (OpenAIError, json.JSONDecodeError, KeyError) as e:
+    except (OpenAIError, json.JSONDecodeError, KeyError, IndexError) as e:
         logger.warning("Summarization failed for paper %r: %s", paper.arxiv_id, e)
         return Summary(
             chinese_abstract="",

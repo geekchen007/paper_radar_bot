@@ -10,6 +10,7 @@ if exist ".venv\Scripts\activate.bat" (
 )
 
 :: Run the bot
+set PYTHONPATH=%~dp0src
 python -m paper_radar_bot.main
 if %ERRORLEVEL% neq 0 (
     echo.
