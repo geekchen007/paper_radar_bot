@@ -1,0 +1,27 @@
+# Paper Radar Bot — 领域配置
+# 每个 topic 支持多个关键词，查询时自动 OR 合并。
+# 修改此文件后重新运行即可生效，无需修改代码。
+
+topics:
+  - name: LLM Translation
+    keywords:
+      - LLM translation
+      - large language model translation
+      - neural machine translation
+    max_results: 10
+
+  - name: Omni Model
+    keywords:
+      - omni model
+      - multimodal model
+      - vision language model
+      - unified model
+    max_results: 10
+
+  - name: Sign Language Translation
+    keywords:
+      - sign language translation
+      - sign language recognition
+      - gesture recognition
+      - sign language production
+    max_results: 10
