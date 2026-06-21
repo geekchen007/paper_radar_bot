@@ -11,10 +11,11 @@ load_dotenv()
 _DEFAULTS = {
     "OPENAI_BASE_URL": "https://api.openai.com/v1",
     "OPENAI_MODEL": "gpt-4o-mini",
-    "ARXIV_QUERY": "cat:cs.AI OR cat:cs.LG OR cat:cs.CL",
+    "ARXIV_QUERY": "cat:cs.AI",
     "ARXIV_MAX_RESULTS": "10",
     "REPORT_TIMEZONE": "Asia/Shanghai",
     "REPORT_LOCALE": "zh_CN",
+    "OUTPUT_FORMAT": "html",
 }
 
 
@@ -29,6 +30,7 @@ class Config:
     arxiv_max_results: int
     timezone: str
     locale: str
+    output_format: str  # "html" or "markdown"
 
 
 def load_config() -> Config:
@@ -45,6 +47,11 @@ def load_config() -> Config:
         print(f"ERROR: ARXIV_MAX_RESULTS must be an integer, got: {raw_max!r}", file=sys.stderr)
         sys.exit(1)
 
+    raw_format = os.getenv("OUTPUT_FORMAT", _DEFAULTS["OUTPUT_FORMAT"]).lower()
+    if raw_format not in ("html", "markdown"):
+        print(f"ERROR: OUTPUT_FORMAT must be 'html' or 'markdown', got: {raw_format!r}", file=sys.stderr)
+        sys.exit(1)
+
     return Config(
         api_key=api_key,
         base_url=os.getenv("OPENAI_BASE_URL", _DEFAULTS["OPENAI_BASE_URL"]),
@@ -53,4 +60,5 @@ def load_config() -> Config:
         arxiv_max_results=max_results,
         timezone=os.getenv("REPORT_TIMEZONE", _DEFAULTS["REPORT_TIMEZONE"]),
         locale=os.getenv("REPORT_LOCALE", _DEFAULTS["REPORT_LOCALE"]),
+        output_format=raw_format,
     )
