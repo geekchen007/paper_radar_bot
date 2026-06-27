@@ -63,3 +63,23 @@ def load_topics(topics_file: str = "topics.yaml", fallback_query: str | None = N
         return list(_DEFAULT_TOPICS)
 
     return topics
+
+
+def load_report_title(topics_file: str = "topics.yaml", topics: list[Topic] | None = None) -> str:
+    """Load survey report title from YAML; fall back to joined topic names."""
+    path = Path(topics_file)
+    if path.exists():
+        try:
+            with open(path, encoding="utf-8") as f:
+                data = yaml.safe_load(f) or {}
+        except yaml.YAMLError as e:
+            print(f"ERROR: Failed to parse {topics_file}: {e}", file=sys.stderr)
+            sys.exit(1)
+        title = data.get("report_title")
+        if title is not None and str(title).strip():
+            return str(title).strip()
+
+    if topics:
+        return "与".join(t.name for t in topics)
+
+    return "默认"

@@ -4,7 +4,7 @@ import os
 import tempfile
 
 from paper_radar_bot.models import Topic
-from paper_radar_bot.topics import load_topics
+from paper_radar_bot.topics import load_report_title, load_topics
 
 
 def test_topic_arxiv_query_single_keyword():
@@ -71,3 +71,27 @@ def test_load_topics_skips_empty_keywords():
         assert topics[0].name == "Valid"
     finally:
         os.unlink(path)
+
+
+def test_load_report_title_from_yaml():
+    yaml_content = (
+        "report_title: 多模态翻译\n"
+        "topics:\n"
+        "  - name: AI Test\n"
+        "    keywords:\n"
+        "      - artificial intelligence\n"
+    )
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False, encoding="utf-8") as f:
+        f.write(yaml_content)
+        path = f.name
+    try:
+        title = load_report_title(path)
+        assert title == "多模态翻译"
+    finally:
+        os.unlink(path)
+
+
+def test_load_report_title_fallback_to_topic_names():
+    topics = [Topic(name="图像文本翻译", keywords=["test"]), Topic(name="图像文字编辑", keywords=["edit"])]
+    title = load_report_title("nonexistent_xyz.yaml", topics=topics)
+    assert title == "图像文本翻译与图像文字编辑"
