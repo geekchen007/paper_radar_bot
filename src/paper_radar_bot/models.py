@@ -23,6 +23,7 @@ class Summary:
     highlights: list[str] = field(default_factory=list)
     applications: list[str] = field(default_factory=list)
     error: str | None = None
+    report: dict | None = None  # full paper_daily template payload when available
 
 
 @dataclass
