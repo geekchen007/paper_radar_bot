@@ -1,27 +1,46 @@
 # Paper Radar Bot — 领域配置
 # 每个 topic 支持多个关键词，查询时自动 OR 合并。
-# 修改此文件后重新运行即可生效，无需修改代码。
+# 中文领域名 + 英文关键词扩展（arXiv 检索使用英文 all:"..." 查询）。
+# report_title：报告文件名中的主题名（输出：reports/prb<report_title>_YYYYMMDD.html）
+
+report_title: 图像文本翻译与多语言文本渲染与图像文字编辑
 
 topics:
-  - name: LLM Translation
+  - name: 图像文本翻译
     keywords:
-      - LLM translation
-      - large language model translation
-      - neural machine translation
+      - image text translation
+      - scene text translation
+      - visual text translation
+      - text in the wild translation
+      - OCR translation
+      - multilingual scene text translation
+      - end-to-end text image translation
+      - scene text recognition translation
     max_results: 10
 
-  - name: Omni Model
+  - name: 多语言文本渲染
     keywords:
-      - omni model
-      - multimodal model
-      - vision language model
-      - unified model
+      - multilingual text rendering
+      - neural text rendering
+      - text rendering in images
+      - visual text synthesis
+      - typography generation
+      - glyph-aware text generation
+      - scene text generation
+      - multilingual text generation image
+      - text-to-image typography
+      - anytext
     max_results: 10
 
-  - name: Sign Language Translation
+  - name: 图像文字编辑
     keywords:
-      - sign language translation
-      - sign language recognition
-      - gesture recognition
-      - sign language production
+      - image text editing
+      - scene text editing
+      - text editing in images
+      - text replacement image
+      - text manipulation image
+      - text inpainting
+      - editable scene text
+      - text erasing image
+      - scene text modification
     max_results: 10

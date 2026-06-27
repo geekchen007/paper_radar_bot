@@ -2,7 +2,7 @@
 
 自动抓取 arXiv 最新论文，调用 OpenAI 兼容模型生成中文总结，输出带日期的 HTML 报告。支持通过 `topics.yaml` 配置多个领域关键词，每次运行生成一份按领域分节的单文件报告。
 
-另提供 **HuggingFace 热门论文模块**，每日抓取 HuggingFace Daily / Weekly Top 10，翻译摘要后生成独立 HTML 报告。
+另提供 **HuggingFace 热门论文模块**：不依赖 `topics.yaml`、不按领域关键词过滤，直接抓取 HuggingFace 每日 / 每周热门 Top 10，生成结构化中文解读的独立 HTML 报告。
 
 ## 快速开始（Windows）
 
@@ -23,18 +23,30 @@ PYTHONPATH=src python -m paper_radar_bot.main
 
 ## HuggingFace 热门论文
 
-抓取 [huggingface.co/papers](https://huggingface.co/papers) 每日热门与 [huggingface.co/papers/trending](https://huggingface.co/papers/trending) 每周热门各 Top 10，通过 arXiv API 获取完整元数据，LLM 翻译摘要后生成独立 HTML 报告。
+与 arXiv 日报不同，本模块**不区分主题**——不读取 `topics.yaml`，也不按关键词筛选，只按 HuggingFace 平台热度排名抓取论文。
+
+- 每日热门：[huggingface.co/papers](https://huggingface.co/papers) Top 10
+- 每周热门：[huggingface.co/papers/trending](https://huggingface.co/papers/trending) Top 10
+
+通过 arXiv API 获取完整元数据后，LLM 生成**结构化中文总结**，每篇论文包含：
+
+- 中文标题、一句话核心贡献
+- 中文摘要式总结
+- 核心贡献、关键结果
+- 阅读建议、可信度评分等
 
 ```bash
 PYTHONPATH=src python -m paper_radar_bot.hf_main
 ```
 
+Windows 也可双击 `run_hf_papers.bat` 运行。
+
 报告保存至 `reports/prbHF热门论文_YYYYMMDD.html`，包含两个可折叠区块：**每日 Top 10** 和 **每周 Top 10**。
 
-默认仅翻译摘要（速度快、调用次数少）。若需结构化总结（中文标题、核心贡献、关键结果等），在 `.env` 中设置：
+若只需快速翻译摘要（不生成结构化字段），可在 `.env` 中设置：
 
 ```dotenv
-HF_SUMMARIZE_MODE=full
+HF_SUMMARIZE_MODE=translate
 ```
 
 ## 领域配置（topics.yaml）
@@ -62,7 +74,7 @@ topics:
 | `OUTPUT_FORMAT` | 否 | `html` | 输出格式：`html` 或 `markdown`（仅 arXiv 日报） |
 | `ARXIV_QUERY` | 否 | `cat:cs.AI` | 仅在 topics.yaml 不存在时作为回退查询 |
 | `ARXIV_MAX_RESULTS` | 否 | `10` | 回退模式下的最大结果数 |
-| `HF_SUMMARIZE_MODE` | 否 | `translate` | HF 模块：`translate` 仅翻译摘要；`full` 结构化总结 |
+| `HF_SUMMARIZE_MODE` | 否 | `full` | HF 模块：`full` 结构化总结；`translate` 仅翻译摘要 |
 | `REPORT_TIMEZONE` | 否 | `Asia/Shanghai` | 时区标签（信息性） |
 | `REPORT_LOCALE` | 否 | `zh_CN` | 地区标签（信息性） |
 
