@@ -53,7 +53,7 @@ def load_config() -> Config:
         print(f"ERROR: OUTPUT_FORMAT must be 'html' or 'markdown', got: {raw_format!r}", file=sys.stderr)
         sys.exit(1)
 
-    raw_hf_mode = os.getenv("HF_SUMMARIZE_MODE", "translate").lower()
+    raw_hf_mode = os.getenv("HF_SUMMARIZE_MODE", "full").lower()
     if raw_hf_mode not in ("translate", "full"):
         print(f"ERROR: HF_SUMMARIZE_MODE must be 'translate' or 'full', got: {raw_hf_mode!r}", file=sys.stderr)
         sys.exit(1)

@@ -9,7 +9,7 @@ from paper_radar_bot.html_renderer import render_report as render_html
 from paper_radar_bot.models import TopicResult
 from paper_radar_bot.renderer import render_report as render_markdown
 from paper_radar_bot.summarizer import summarize
-from paper_radar_bot.topics import load_topics
+from paper_radar_bot.topics import load_report_title, load_topics
 from paper_radar_bot.writer import write_report
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -20,9 +20,16 @@ def main() -> None:
     """Fetch papers by topic, summarize, render, and write the daily report."""
     config = load_config()
     topics = load_topics(fallback_query=config.arxiv_query)
+    report_title = load_report_title("topics.yaml", topics)
 
     date_str = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
-    logger.info("Running paper radar for %s (%d topics, format: %s)", date_str, len(topics), config.output_format)
+    logger.info(
+        "Running paper radar for %s (%d topics, title: %s, format: %s)",
+        date_str,
+        len(topics),
+        report_title,
+        config.output_format,
+    )
 
     results: list[TopicResult] = []
     for topic in topics:
@@ -33,7 +40,7 @@ def main() -> None:
         summaries = []
         for i, paper in enumerate(papers, start=1):
             logger.info("  [%d/%d] Summarizing: %s", i, len(papers), paper.title[:60])
-            summary = summarize(paper, config)
+            summary = summarize(paper, config, date_str)
             if summary.error is not None:
                 logger.warning("    Summary failed: %s", summary.error)
             summaries.append(summary)
@@ -45,7 +52,12 @@ def main() -> None:
     else:
         report = render_markdown(results, date_str)
 
-    path = write_report(report, date_str, output_format=config.output_format)
+    path = write_report(
+        report,
+        date_str,
+        output_format=config.output_format,
+        report_title=report_title,
+    )
     logger.info("Report written to: %s", path)
 
 
